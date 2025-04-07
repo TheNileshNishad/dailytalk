@@ -1,0 +1,33 @@
+{
+  "name": "backend",
+  "version": "1.0.0",
+  "description": "A MERN stack application to chat with various people",
+  "keywords": [
+    "dailytalk",
+    "talking",
+    "chatting"
+  ],
+  "homepage": "https://github.com/thenileshnishad/dailytalk#readme",
+  "bugs": {
+    "url": "https://github.com/thenileshnishad/dailytalk/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/thenileshnishad/dailytalk.git"
+  },
+  "license": "ISC",
+  "author": "Nilesh Kumar Nishad",
+  "type": "module",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "nodemon src/server.js"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.7",
+    "express": "^5.1.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.9"
+  }
+}
