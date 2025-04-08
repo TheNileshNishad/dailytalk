@@ -1,6 +1,7 @@
 import express from "express"
 import dotenv from "dotenv"
 import connectDb from "./config/db.js"
+import errorHandler from "./middlewares/errorHandler.js"
 
 import authRoutes from "./routes/authRoutes.js"
 
@@ -12,6 +13,7 @@ app.get("/", (req, res) => {
   res.send("Hello there! The server is up and running!🚀✨")
 })
 app.use("/api/auth", authRoutes)
+app.use(errorHandler)
 
 const PORT = process.env.PORT || 3001
 app.listen(PORT, () => {
