@@ -1,6 +1,7 @@
 import User from "../models/userModel.js"
 import asyncHandler from "../middlewares/asyncHandler.js"
 import tokenUtils from "../utils/tokenUtils.js"
+import jwt from "jsonwebtoken"
 
 const register = asyncHandler(async (req, res) => {
   const { name, userName, password } = req.body
@@ -18,6 +19,7 @@ const register = asyncHandler(async (req, res) => {
     password,
   })
 
+  // tokenUtils sets refreshCookie and saves in db
   const accessToken = await tokenUtils(user._id, res)
 
   res.status(201).json({
@@ -42,6 +44,7 @@ const login = asyncHandler(async (req, res) => {
       .status(401)
       .json({ success: false, message: "Invalid credentials!" })
 
+  // tokenUtils sets refreshCookie and saves in db
   const accessToken = await tokenUtils(user._id, res)
 
   res.status(200).json({
@@ -52,4 +55,32 @@ const login = asyncHandler(async (req, res) => {
   })
 })
 
-export { register, login }
+const refresh = asyncHandler(async (req, res) => {
+  const oldRefreshToken = req.cookies.refreshToken
+  if (!oldRefreshToken)
+    return res
+      .status(401)
+      .json({ success: false, message: "Refresh token is missing!" })
+
+  const decodeToken = jwt.verify(
+    oldRefreshToken,
+    process.env.REFRESH_TOKEN_SECRET
+  )
+
+  const user = await User.findById(decodeToken?._id)
+  if (!user || oldRefreshToken !== user.refreshToken)
+    return res
+      .status(401)
+      .json({ success: false, message: "Refresh token is invalid or expired!" })
+
+  // tokenUtils sets refreshCookie and saves in db
+  const newAccessToken = await tokenUtils(user._id, res)
+
+  res.status(200).json({
+    success: true,
+    message: "Tokens refreshed and rotated successfully!",
+    accessToken: newAccessToken,
+  })
+})
+
+export { register, login, refresh }
