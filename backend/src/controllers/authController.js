@@ -1,5 +1,6 @@
 import User from "../models/userModel.js"
 import asyncHandler from "../middlewares/asyncHandler.js"
+import tokenUtils from "../utils/tokenUtils.js"
 
 const register = asyncHandler(async (req, res) => {
   const { name, userName, password } = req.body
@@ -17,9 +18,12 @@ const register = asyncHandler(async (req, res) => {
     password,
   })
 
+  const accessToken = await tokenUtils(user._id, res)
+
   res.status(201).json({
     success: true,
-    message: "User registered successfully!",
+    message: "User created successfully!",
+    accessToken,
     user: { _id: user._id, name: user.name, userName: user.userName },
   })
 })
@@ -38,9 +42,14 @@ const login = asyncHandler(async (req, res) => {
       .status(401)
       .json({ success: false, message: "Invalid credentials!" })
 
-  res
-    .status(200)
-    .json({ success: true, message: "User valididated successfully!" })
+  const accessToken = await tokenUtils(user._id, res)
+
+  res.status(200).json({
+    success: true,
+    message: "User logged in successfully!",
+    accessToken,
+    user: { _id: user._id, name: user.name, userName: user.userName },
+  })
 })
 
 export { register, login }
