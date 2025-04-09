@@ -24,8 +24,23 @@ const register = asyncHandler(async (req, res) => {
   })
 })
 
-const login = (req, res) => {
-  res.send("login")
-}
+const login = asyncHandler(async (req, res) => {
+  const { userName, password } = req.body
+  const user = await User.findOne({ userName })
+  if (!user)
+    return res
+      .status(401)
+      .json({ success: false, message: "Invalid credentials!" })
+
+  const comparedPassword = await user.comparePassword(password)
+  if (!comparedPassword)
+    return res
+      .status(401)
+      .json({ success: false, message: "Invalid credentials!" })
+
+  res
+    .status(200)
+    .json({ success: true, message: "User valididated successfully!" })
+})
 
 export { register, login }

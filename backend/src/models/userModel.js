@@ -29,4 +29,8 @@ userSchema.pre("save", async function (next) {
   next()
 })
 
+userSchema.methods.comparePassword = async function (clientSentPassword) {
+  return await bcrypt.compare(clientSentPassword, this.password)
+}
+
 export default model("User", userSchema)
