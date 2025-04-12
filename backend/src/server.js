@@ -5,6 +5,7 @@ import errorHandler from "./middlewares/errorHandler.js"
 import cookieParser from "cookie-parser"
 
 import authRoutes from "./routes/authRoutes.js"
+import userRoutes from "./routes/userRoutes.js"
 
 const app = express()
 app.use(express.json())
@@ -15,6 +16,7 @@ app.get("/", (req, res) => {
   res.send("Hello there! The server is up and running!🚀✨")
 })
 app.use("/api/auth", authRoutes)
+app.use("/api/users", userRoutes)
 app.use(errorHandler)
 
 const PORT = process.env.PORT || 3001
