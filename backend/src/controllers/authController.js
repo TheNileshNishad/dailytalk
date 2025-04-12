@@ -104,6 +104,7 @@ const logout = asyncHandler(async (req, res) => {
   res
     .status(200)
     .clearCookie("refreshToken", {
+      path: "/api/auth",
       httpOnly: true,
       secure: true,
       sameSite: "Strict",

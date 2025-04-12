@@ -15,6 +15,7 @@ const generateTokens = async (_id, res) => {
   await user.save()
 
   res.cookie("refreshToken", refreshToken, {
+    path: "/api/auth",
     maxAge: 7 * 24 * 60 * 60 * 1000,
     httpOnly: true,
     secure: true,
