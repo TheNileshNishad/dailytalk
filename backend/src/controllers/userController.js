@@ -34,4 +34,22 @@ const updateMyProfile = asyncHandler(async (req, res) => {
     .json({ success: true, message: "Profile updated successfully!", user })
 })
 
-export { getMyProfile, updateMyProfile }
+const getAllNonFriendUsers = (req, res) => {
+  res.send("getAllNonFriendUsers")
+}
+
+const searchUsers = (req, res) => {
+  res.send("searchUsers")
+}
+
+const getUserProfileById = (req, res) => {
+  res.send("getUserProfileById")
+}
+
+export {
+  getMyProfile,
+  updateMyProfile,
+  getAllNonFriendUsers,
+  searchUsers,
+  getUserProfileById,
+}
