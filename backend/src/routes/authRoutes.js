@@ -5,14 +5,14 @@ import {
   refresh,
   logout,
 } from "../controllers/authController.js"
-import validateRequest from "../middlewares/validateRequest.js"
+import validate from "../middlewares/validateRequest.js"
 import { loginSchema, registerSchema } from "../validators/authValidator.js"
 
 const router = express.Router()
 
-router.post("/register", validateRequest(registerSchema), register)
-router.post("/login", validateRequest(loginSchema), login)
-router.post("/refresh", refresh)
+router.post("/register", validate(registerSchema), register)
+router.post("/login", validate(loginSchema), login)
+router.get("/refresh", refresh)
 router.post("/logout", logout)
 
 export default router
