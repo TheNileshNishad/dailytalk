@@ -37,6 +37,8 @@ const updateMyProfile = asyncHandler(async (req, res) => {
 
 const getAllNonFriendUsers = asyncHandler(async (req, res) => {
   const loggedInUserId = req.user._id
+  const { page = 1, limit = 10, search = "" } = req.query
+  const skip = (page - 1) * limit
 
   const friendships = await Friend.find({
     $or: [{ sender: loggedInUserId }, { receiver: loggedInUserId }],
@@ -53,20 +55,32 @@ const getAllNonFriendUsers = asyncHandler(async (req, res) => {
     ...new Set([loggedInUserId.toString(), ...friendUserIds]),
   ]
 
-  const nonFriendUsers = await User.find({
+  const query = {
     _id: { $nin: excludedUserIds },
-  }).select("-password -refreshToken")
+  }
+
+  if (search.trim()) {
+    query.$or = [
+      { name: { $regex: search, $options: "i" } },
+      { userName: { $regex: search, $options: "i" } },
+    ]
+  }
+
+  const users = await User.find(query)
+    .select("-password -refreshToken")
+    .sort({ createdAt: -1 })
+    .skip(skip)
+    .limit(limit)
+
+  const total = await User.countDocuments(query)
 
   res.status(200).json({
     success: true,
-    message: "Non-friend users fetched successfully!",
-    nonFriendUsers,
+    message: "Users profile fetched successfully!",
+    users,
+    pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
   })
 })
-
-const searchUsers = (req, res) => {
-  res.send("searchUsers")
-}
 
 const getUserProfileById = (req, res) => {
   res.send("getUserProfileById")
@@ -76,6 +90,5 @@ export {
   getMyProfile,
   updateMyProfile,
   getAllNonFriendUsers,
-  searchUsers,
   getUserProfileById,
 }

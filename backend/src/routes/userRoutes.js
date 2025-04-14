@@ -4,7 +4,6 @@ import {
   getAllNonFriendUsers,
   getMyProfile,
   getUserProfileById,
-  searchUsers,
   updateMyProfile,
 } from "../controllers/userController.js"
 import validate from "../middlewares/validateRequest.js"
@@ -17,11 +16,10 @@ router.use(authMiddleware)
 router.get("/me", getMyProfile)
 router.put("/me", validate(updateUserSchema), updateMyProfile)
 
-// user discovery routes
-router.get("/discover", getAllNonFriendUsers)
-router.get("/search", searchUsers)
+// search user (queries -> page, limit, search)
+router.get("/search", getAllNonFriendUsers)
 
-// specific user route
+// get specific user profile
 router.get("/:userId", getUserProfileById)
 
 export default router
