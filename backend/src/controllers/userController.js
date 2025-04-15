@@ -1,6 +1,7 @@
 import asyncHandler from "../middlewares/asyncHandler.js"
 import User from "../models/userModel.js"
 import Friend from "../models/friendModel.js"
+import mongoose from "mongoose"
 
 const getMyProfile = (req, res) => {
   res.status(200).json({
@@ -82,9 +83,25 @@ const getAllNonFriendUsers = asyncHandler(async (req, res) => {
   })
 })
 
-const getUserProfileById = (req, res) => {
-  res.send("getUserProfileById")
-}
+const getUserProfileById = asyncHandler(async (req, res) => {
+  const { userId } = req.params
+
+  if (!mongoose.Types.ObjectId.isValid(userId)) {
+    return res
+      .status(400)
+      .json({ success: false, message: "Please provide a valid user ID!" })
+  }
+
+  const user = await User.findById(userId).select("-password -refreshToken")
+  if (!user)
+    return res
+      .status(404)
+      .json({ success: false, message: "No user found with that ID!" })
+
+  res
+    .status(200)
+    .json({ success: true, message: "User detail fetched successfully!", user })
+})
 
 export {
   getMyProfile,

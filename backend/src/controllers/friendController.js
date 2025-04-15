@@ -22,7 +22,7 @@ const sendFriendRequest = asyncHandler(async (req, res) => {
   if (!mongoose.Types.ObjectId.isValid(receiver))
     return res
       .status(400)
-      .json({ success: false, message: "Please provide a valide user ID!" })
+      .json({ success: false, message: "Please provide a valid user ID!" })
 
   if (sender.toString() === receiver)
     return res.status(400).json({
