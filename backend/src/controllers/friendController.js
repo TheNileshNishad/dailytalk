@@ -7,13 +7,46 @@ const getFriends = (req, res) => {
   res.send("getFriends")
 }
 
-const getIncomingRequests = (req, res) => {
-  res.send("getIncomingRequests")
-}
+const getIncomingRequests = asyncHandler(async (req, res) => {
+  const loggedInUserId = req.user._id
 
-const getSentRequests = (req, res) => {
-  res.send("getSentRequests")
-}
+  const incomingRequests = await Friend.find({
+    receiver: loggedInUserId,
+    status: "pending",
+  }).populate("sender", "-password -refreshToken")
+
+  if (incomingRequests.length === 0)
+    return res
+      .status(200)
+      .json({ success: true, message: "No pending friend requests found!" })
+
+  res.status(200).json({
+    success: true,
+    message: "Pending friend requests fetched successfully!",
+    incomingRequests,
+  })
+})
+
+const getSentRequests = asyncHandler(async (req, res) => {
+  const loggedInUserId = req.user._id
+
+  const sentRequests = await Friend.find({
+    sender: loggedInUserId,
+    status: "pending",
+  }).populate("receiver", "-password -refreshToken")
+
+  if (sentRequests.length === 0)
+    return res.status(200).json({
+      success: true,
+      message: "No sent pending friend requests found!",
+    })
+
+  res.status(200).json({
+    success: true,
+    message: "Sent pending friend requests fetched successfully!",
+    sentRequests,
+  })
+})
 
 const sendFriendRequest = asyncHandler(async (req, res) => {
   const sender = req.user._id
