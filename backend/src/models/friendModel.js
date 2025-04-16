@@ -14,7 +14,7 @@ const friendSchema = new Schema(
     },
     status: {
       type: String,
-      enum: ["pending", "accepted", "rejected", "cancelled"],
+      enum: ["pending", "accepted", "rejected"],
       default: "pending",
     },
   },

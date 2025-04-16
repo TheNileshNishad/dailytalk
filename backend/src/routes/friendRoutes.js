@@ -1,35 +1,31 @@
 import express from "express"
 import authMiddleware from "../middlewares/authMiddleware.js"
 import {
-  acceptFriendRequest,
   cancelFriendRequest,
   getFriends,
   getIncomingRequests,
-  getSentRequests,
-  rejectFriendRequest,
-  removeFriend,
+  getOutgoingRequests,
+  handleFriendRequest,
+  removeAcceptedFriend,
   sendFriendRequest,
 } from "../controllers/friendController.js"
 
 const router = express.Router()
 router.use(authMiddleware)
 
-// get all your friends
-router.get("/", getFriends)
-
-// check incoming and sent friend requests
-router.get("/requests/incoming", getIncomingRequests)
-router.get("/requests/sent", getSentRequests)
-
-// send or cancel a request to someone
+// send or cancel a friend request
 router.post("/requests/:receiverId", sendFriendRequest)
-router.put("/requests/:receiverId", cancelFriendRequest)
+router.delete("/requests/:requestId", cancelFriendRequest)
 
-// accept or reject a request you received
-router.put("/requests/:senderId/accept", acceptFriendRequest)
-router.put("/requests/:senderId/reject", rejectFriendRequest)
+// check incoming or outgoing friend requests
+router.get("/requests/incoming", getIncomingRequests)
+router.get("/requests/outgoing", getOutgoingRequests)
 
-// unfriend someone
-router.delete("/:friendId", removeFriend)
+// handle friend requests, status -> (accept or reject)
+router.patch("/requests/:requestId/:status", handleFriendRequest)
+
+// get or remove accepted friends
+router.get("/", getFriends)
+router.delete("/:acceptedRequestId", removeAcceptedFriend)
 
 export default router
