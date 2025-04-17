@@ -40,10 +40,38 @@ const sendFriendRequest = asyncHandler(async (req, res) => {
           : "You have a pending request from this user!",
       })
     }
+
     if (existingRequest.status === "accepted") {
       return res
         .status(400)
         .json({ success: false, message: "You are already friends!" })
+    }
+
+    if (existingRequest.status === "rejected") {
+      const rejectedTime = new Date(existingRequest.updatedAt)
+      const now = new Date()
+      const timeDiff = now - rejectedTime
+      const oneHour = 60 * 60 * 1000
+
+      if (timeDiff < oneHour) {
+        const remaining = oneHour - timeDiff
+        const minutes = Math.floor(remaining / (60 * 1000))
+        const seconds = Math.floor((remaining % (60 * 1000)) / 1000)
+
+        return res.status(429).json({
+          success: false,
+          message: `Your friend request recenlty rejected. Try again in ${minutes} minutes and ${seconds} seconds!`,
+        })
+      }
+
+      existingRequest.status = "pending"
+      await existingRequest.save()
+
+      return res.status(200).json({
+        success: true,
+        message: `Friend request to ${receiverExists.name} re-sent successfully!`,
+        requestId: existingRequest._id,
+      })
     }
   }
 

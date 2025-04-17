@@ -42,7 +42,10 @@ const getAllNonFriendUsers = asyncHandler(async (req, res) => {
   const skip = (page - 1) * limit
 
   const friendships = await Friend.find({
-    $or: [{ sender: loggedInUserId }, { receiver: loggedInUserId }],
+    $and: [
+      { $or: [{ sender: loggedInUserId }, { receiver: loggedInUserId }] },
+      { status: { $ne: "rejected" } },
+    ],
   })
 
   const friendUserIds = friendships
