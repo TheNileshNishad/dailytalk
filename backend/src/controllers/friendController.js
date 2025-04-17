@@ -129,9 +129,44 @@ const getOutgoingRequests = asyncHandler(async (req, res) => {
   })
 })
 
-const handleFriendRequest = (req, res) => {
-  res.send("handleFriendRequest")
-}
+const handleFriendRequest = asyncHandler(async (req, res) => {
+  const loggedInUserId = req.user._id
+  const { requestId, status } = req.params
+
+  if (!mongoose.Types.ObjectId.isValid(requestId)) {
+    return res
+      .status(400)
+      .json({ success: false, message: "Please provide a valid requestId!" })
+  }
+
+  const validStatus = ["accepted", "rejected"]
+  if (!validStatus.includes(status))
+    return res
+      .status(400)
+      .json({ success: false, message: `${status} is not a valid status!` })
+
+  const updateRequest = await Friend.findOneAndUpdate(
+    {
+      _id: requestId,
+      receiver: loggedInUserId,
+      status: "pending",
+    },
+    { status },
+    { new: true }
+  ).populate("sender", "name")
+
+  if (!updateRequest)
+    return res.status(400).json({
+      success: false,
+      message:
+        "No pending friend request found, or you are not authorized to accept or reject it!",
+    })
+
+  res.status(200).json({
+    success: true,
+    message: `Friend request from ${updateRequest.sender.name} ${status} successfully!`,
+  })
+})
 
 const getFriends = (req, res) => {
   res.send("getFriends")

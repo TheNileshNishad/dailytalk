@@ -21,7 +21,7 @@ router.delete("/requests/:requestId", cancelFriendRequest)
 router.get("/requests/incoming", getIncomingRequests)
 router.get("/requests/outgoing", getOutgoingRequests)
 
-// handle friend requests, status -> (accept or reject)
+// handle friend requests, valid status -> (accepted or rejected)
 router.patch("/requests/:requestId/:status", handleFriendRequest)
 
 // get or remove accepted friends
