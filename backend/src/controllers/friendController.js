@@ -148,6 +148,7 @@ const getOutgoingRequests = asyncHandler(async (req, res) => {
     return res.status(200).json({
       success: true,
       message: "No outgoing friend request found!",
+      sentRequests: [],
     })
 
   res.status(200).json({
@@ -196,9 +197,25 @@ const handleFriendRequest = asyncHandler(async (req, res) => {
   })
 })
 
-const getFriends = (req, res) => {
-  res.send("getFriends")
-}
+const getFriends = asyncHandler(async (req, res) => {
+  const loggedInUserId = req.user._id
+
+  const friends = await Friend.find({
+    $or: [
+      { sender: loggedInUserId, status: "accepted" },
+      { receiver: loggedInUserId, status: "accepted" },
+    ],
+  })
+
+  if (friends.length === 0)
+    return res
+      .status(200)
+      .json({ success: true, message: "No friends found!", friends: [] })
+
+  res
+    .status(200)
+    .json({ success: true, message: "Friends fetched successfully!", friends })
+})
 
 const removeAcceptedFriend = (req, res) => {
   res.send("removeFriend")
