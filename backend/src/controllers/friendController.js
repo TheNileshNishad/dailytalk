@@ -217,9 +217,32 @@ const getFriends = asyncHandler(async (req, res) => {
     .json({ success: true, message: "Friends fetched successfully!", friends })
 })
 
-const removeAcceptedFriend = (req, res) => {
-  res.send("removeFriend")
-}
+const removeAcceptedFriend = asyncHandler(async (req, res) => {
+  const loggedInUserId = req.user._id
+  const { acceptedRequestId } = req.params
+
+  if (!mongoose.Types.ObjectId.isValid(acceptedRequestId)) {
+    return res.status(400).json({
+      success: false,
+      message: "Please provide a valid acceptedRequestId!",
+    })
+  }
+
+  const removedFriend = await Friend.findOneAndDelete({
+    $or: [
+      { _id: acceptedRequestId, sender: loggedInUserId },
+      { _id: acceptedRequestId, receiver: loggedInUserId },
+    ],
+  })
+
+  if (!removedFriend)
+    return res.status(400).json({
+      success: false,
+      message: "Request Id not found, or you are not authorized to unfriend!",
+    })
+
+  res.status(200).json({ success: true, message: "Unfriended successfully!" })
+})
 
 export {
   sendFriendRequest,
