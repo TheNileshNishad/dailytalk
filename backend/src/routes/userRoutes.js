@@ -8,13 +8,19 @@ import {
 } from "../controllers/userController.js"
 import validate from "../middlewares/validateRequest.js"
 import updateUserSchema from "../validators/userValidator.js"
+import { avatarUpload } from "../middlewares/uploadMiddleware.js"
 
 const router = express.Router()
 router.use(authMiddleware)
 
 // user profile routes
 router.get("/me", getMyProfile)
-router.put("/me", validate(updateUserSchema), updateMyProfile)
+router.put(
+  "/me",
+  avatarUpload.single("avatar"),
+  validate(updateUserSchema),
+  updateMyProfile
+)
 
 // search user (queries -> page, limit, search)
 router.get("/search", getAllNonFriendUsers)

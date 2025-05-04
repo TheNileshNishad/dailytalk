@@ -15,6 +15,9 @@ const updateMyProfile = asyncHandler(async (req, res) => {
   const loggedInUser = req.user
   const { name, userName } = req.body
 
+  const avatar = req.file
+  console.log(avatar)
+
   const alreadyTaken = await User.findOne({ userName })
   if (alreadyTaken && userName !== loggedInUser.userName)
     return res.status(409).json({
