@@ -13,7 +13,7 @@ const getMyProfile = (req, res) => {
 
 const updateMyProfile = asyncHandler(async (req, res) => {
   const loggedInUser = req.user
-  const { name, userName } = req.body
+  const { name, userName, bio, gender } = req.body
 
   const avatar = req.file
   console.log(avatar)
@@ -30,6 +30,8 @@ const updateMyProfile = asyncHandler(async (req, res) => {
     {
       name,
       userName,
+      bio,
+      gender,
     },
     { new: true }
   ).select("-password -refreshToken")

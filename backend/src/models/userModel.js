@@ -19,6 +19,13 @@ const userSchema = new Schema(
     refreshToken: {
       type: String,
     },
+    bio: {
+      type: String,
+    },
+    gender: {
+      type: String,
+      enum: ["male", "female", "prefer not to say"],
+    },
   },
   {
     timestamps: true,
