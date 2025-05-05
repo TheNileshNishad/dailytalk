@@ -33,6 +33,7 @@ const updateMyProfile = asyncHandler(async (req, res) => {
 
   const user = await User.findByIdAndUpdate(loggedInUser._id, updateData, {
     new: true,
+    runValidators: true,
   }).select("-password -refreshToken")
 
   res

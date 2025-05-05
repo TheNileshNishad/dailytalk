@@ -48,11 +48,15 @@ const login = asyncHandler(async (req, res) => {
   // tokenUtils sets refreshCookie and saves in db
   const accessToken = await tokenUtils(user._id, res)
 
+  const userObject = user.toObject()
+  delete userObject.password
+  delete userObject.refreshToken
+
   res.status(200).json({
     success: true,
     message: `Welcome back ${user.name}. You have been logged in successfully!`,
     accessToken,
-    user: { _id: user._id, name: user.name, userName: user.userName },
+    user: userObject,
   })
 })
 

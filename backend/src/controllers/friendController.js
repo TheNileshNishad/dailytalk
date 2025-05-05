@@ -181,7 +181,7 @@ const handleFriendRequest = asyncHandler(async (req, res) => {
       status: "pending",
     },
     { status },
-    { new: true }
+    { new: true, runValidators: true }
   ).populate("sender", "name")
 
   if (!updateRequest)
