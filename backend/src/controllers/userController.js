@@ -2,7 +2,11 @@ import asyncHandler from "../middlewares/asyncHandler.js"
 import User from "../models/userModel.js"
 import Friend from "../models/friendModel.js"
 import mongoose from "mongoose"
-import uploadToCloudinary from "../utils/cloudinaryUtils.js"
+import fs from "fs"
+import {
+  deleteFromCloudinary,
+  uploadToCloudinary,
+} from "../utils/cloudinaryUtils.js"
 
 const getMyProfile = (req, res) => {
   res.status(200).json({
@@ -18,15 +22,22 @@ const updateMyProfile = asyncHandler(async (req, res) => {
   const avatar = req.file
 
   const alreadyTaken = await User.findOne({ userName })
-  if (alreadyTaken && userName !== loggedInUser.userName)
+  if (alreadyTaken && userName !== loggedInUser.userName) {
+    fs.unlinkSync(avatar.path)
     return res.status(409).json({
       success: false,
       message: "Username is already taken. Please choose another one!",
     })
+  }
 
   const updateData = { name, userName, bio, gender }
 
   if (avatar) {
+    const currentUser = await User.findById(loggedInUser._id)
+    if (currentUser.avatar.public_id) {
+      await deleteFromCloudinary(currentUser.avatar.public_id)
+    }
+
     const { public_id, secure_url } = await uploadToCloudinary(avatar.path)
     updateData.avatar = { public_id, secure_url }
   }
