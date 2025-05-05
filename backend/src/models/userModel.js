@@ -26,6 +26,10 @@ const userSchema = new Schema(
       type: String,
       enum: ["male", "female", "prefer not to say"],
     },
+    avatar: {
+      public_id: { type: String },
+      secure_url: { type: String },
+    },
   },
   {
     timestamps: true,

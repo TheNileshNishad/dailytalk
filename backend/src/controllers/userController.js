@@ -2,6 +2,7 @@ import asyncHandler from "../middlewares/asyncHandler.js"
 import User from "../models/userModel.js"
 import Friend from "../models/friendModel.js"
 import mongoose from "mongoose"
+import uploadToCloudinary from "../utils/cloudinaryUtils.js"
 
 const getMyProfile = (req, res) => {
   res.status(200).json({
@@ -14,9 +15,7 @@ const getMyProfile = (req, res) => {
 const updateMyProfile = asyncHandler(async (req, res) => {
   const loggedInUser = req.user
   const { name, userName, bio, gender } = req.body
-
   const avatar = req.file
-  console.log(avatar)
 
   const alreadyTaken = await User.findOne({ userName })
   if (alreadyTaken && userName !== loggedInUser.userName)
@@ -25,16 +24,16 @@ const updateMyProfile = asyncHandler(async (req, res) => {
       message: "Username is already taken. Please choose another one!",
     })
 
-  const user = await User.findByIdAndUpdate(
-    loggedInUser._id,
-    {
-      name,
-      userName,
-      bio,
-      gender,
-    },
-    { new: true }
-  ).select("-password -refreshToken")
+  const updateData = { name, userName, bio, gender }
+
+  if (avatar) {
+    const { public_id, secure_url } = await uploadToCloudinary(avatar.path)
+    updateData.avatar = { public_id, secure_url }
+  }
+
+  const user = await User.findByIdAndUpdate(loggedInUser._id, updateData, {
+    new: true,
+  }).select("-password -refreshToken")
 
   res
     .status(200)
