@@ -1,7 +1,10 @@
-import { Link } from "react-router-dom"
+import { Link, useNavigate } from "react-router-dom"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { registerSchema } from "../validators/authValidator"
+import { useMutation } from "@tanstack/react-query"
+import axiosInstance from "../api/axios"
+import useAuthStore from "../store/authStore"
 
 const Register = () => {
   const {
@@ -10,8 +13,20 @@ const Register = () => {
     formState: { errors },
   } = useForm({ resolver: zodResolver(registerSchema) })
 
-  const onSubmit = (values) => {
-    console.log(values)
+  const navigate = useNavigate()
+  const setAuthData = useAuthStore((state) => state.setAuthData)
+
+  const registration = useMutation({
+    mutationFn: (newUser) => axiosInstance.post("/api/auth/register", newUser),
+    onSuccess: (response) => {
+      const { user, accessToken } = response.data
+      setAuthData(user, accessToken)
+      navigate("/", { replace: true })
+    },
+  })
+
+  const onSubmit = (data) => {
+    registration.mutate(data)
   }
 
   return (
