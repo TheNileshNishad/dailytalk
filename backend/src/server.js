@@ -3,15 +3,17 @@ import dotenv from "dotenv"
 import connectDb from "./config/db.js"
 import errorHandler from "./middlewares/errorHandler.js"
 import cookieParser from "cookie-parser"
+import cors from "cors"
 
 import authRoutes from "./routes/authRoutes.js"
 import userRoutes from "./routes/userRoutes.js"
 import friendRoutes from "./routes/friendRoutes.js"
 
+dotenv.config()
 const app = express()
 app.use(express.json())
 app.use(cookieParser())
-dotenv.config()
+app.use(cors({ origin: process.env.FRONTEND_URL, credentials: true }))
 
 app.get("/", (req, res) => {
   res.send("Hello there! The server is up and running!🚀✨")
