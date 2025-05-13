@@ -1,7 +1,10 @@
-import { Link } from "react-router-dom"
+import { Link, useNavigate } from "react-router-dom"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { loginSchema } from "../validators/authValidator"
+import { useMutation } from "@tanstack/react-query"
+import axiosInstance from "../api/axios"
+import useAuthStore from "../store/authStore"
 
 const Login = () => {
   const {
@@ -10,8 +13,20 @@ const Login = () => {
     formState: { errors },
   } = useForm({ resolver: zodResolver(loginSchema) })
 
-  const onSubmit = (values) => {
-    console.log(values)
+  const navigate = useNavigate()
+  const setAuthData = useAuthStore((state) => state.setAuthData)
+
+  const login = useMutation({
+    mutationFn: (data) => axiosInstance.post("/api/auth/login", data),
+    onSuccess: (response) => {
+      const { user, accessToken } = response.data
+      setAuthData(user, accessToken)
+      navigate("/", { replace: true })
+    },
+  })
+
+  const onSubmit = (data) => {
+    login.mutate(data)
   }
 
   return (
@@ -74,11 +89,18 @@ const Login = () => {
                 <button
                   type="submit"
                   className="btn btn-primary w-full rounded-lg my-3"
+                  disabled={login.isPending}
                 >
-                  Log in
+                  {login.isPending ? "Logging in..." : "Log in"}
                 </button>
               </div>
             </form>
+
+            {login.isError && (
+              <p className="text-red-500 pb-3 dark:text-red-400 text-center text-sm">
+                {login?.error?.response?.data?.message}
+              </p>
+            )}
 
             <div className="text-center text-sm">
               Don't have an account?{" "}

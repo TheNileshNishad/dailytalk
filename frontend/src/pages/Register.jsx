@@ -109,11 +109,18 @@ const Register = () => {
                 <button
                   type="submit"
                   className="btn btn-primary w-full rounded-lg my-3"
+                  disabled={registration.isPending}
                 >
                   Create account
                 </button>
               </div>
             </form>
+
+            {registration.isError && (
+              <p className="text-red-500 pb-3 dark:text-red-400 text-center text-sm">
+                {registration?.error?.response?.data?.message}
+              </p>
+            )}
 
             <div className="text-center text-sm">
               Already have an account?{" "}
