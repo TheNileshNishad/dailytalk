@@ -5,6 +5,7 @@ import { loginSchema } from "../validators/authValidator"
 import { useMutation } from "@tanstack/react-query"
 import axiosInstance from "../api/axios"
 import useAuthStore from "../store/authStore"
+import { useEffect } from "react"
 
 const Login = () => {
   const {
@@ -15,6 +16,13 @@ const Login = () => {
 
   const navigate = useNavigate()
   const setAuthData = useAuthStore((state) => state.setAuthData)
+  const isAuthenticated = useAuthStore(
+    (state) => !!state.user && !!state.accessToken
+  )
+
+  useEffect(() => {
+    if (isAuthenticated) navigate("/", { replace: true })
+  }, [isAuthenticated])
 
   const login = useMutation({
     mutationFn: (data) => axiosInstance.post("/api/auth/login", data),

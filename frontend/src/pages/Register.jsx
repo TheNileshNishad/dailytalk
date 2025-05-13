@@ -5,6 +5,7 @@ import { registerSchema } from "../validators/authValidator"
 import { useMutation } from "@tanstack/react-query"
 import axiosInstance from "../api/axios"
 import useAuthStore from "../store/authStore"
+import { useEffect } from "react"
 
 const Register = () => {
   const {
@@ -15,6 +16,13 @@ const Register = () => {
 
   const navigate = useNavigate()
   const setAuthData = useAuthStore((state) => state.setAuthData)
+  const isAuthenticated = useAuthStore(
+    (state) => !!state.user && !!state.accessToken
+  )
+
+  useEffect(() => {
+    if (isAuthenticated) navigate("/", { replace: true })
+  }, [isAuthenticated])
 
   const registration = useMutation({
     mutationFn: (newUser) => axiosInstance.post("/api/auth/register", newUser),
@@ -111,7 +119,9 @@ const Register = () => {
                   className="btn btn-primary w-full rounded-lg my-3"
                   disabled={registration.isPending}
                 >
-                  Create account
+                  {registration.isPending
+                    ? "Creating account..."
+                    : "Create account"}
                 </button>
               </div>
             </form>
