@@ -1,7 +1,10 @@
 import { Outlet } from "react-router-dom"
 import Sidebar from "./Sidebar"
+import provideAuth from "../api/provideAuth"
 
 const Layout = () => {
+  const { isReady } = provideAuth()
+  if (!isReady) return <p>Checking authentication...</p>
   return (
     <>
       <Sidebar />

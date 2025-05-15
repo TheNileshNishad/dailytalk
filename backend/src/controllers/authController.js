@@ -82,10 +82,15 @@ const refresh = asyncHandler(async (req, res) => {
   // tokenUtils sets refreshCookie and saves in db
   const newAccessToken = await tokenUtils(user._id, res)
 
+  const userObject = user.toObject()
+  delete userObject.password
+  delete userObject.refreshToken
+
   res.status(200).json({
     success: true,
     message: "Tokens refreshed and rotated successfully!",
     accessToken: newAccessToken,
+    user: userObject,
   })
 })
 
@@ -108,7 +113,6 @@ const logout = asyncHandler(async (req, res) => {
   res
     .status(200)
     .clearCookie("refreshToken", {
-      path: "/api/auth",
       httpOnly: true,
       secure: true,
       sameSite: "Strict",
