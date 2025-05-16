@@ -123,4 +123,27 @@ const logout = asyncHandler(async (req, res) => {
     })
 })
 
-export { register, login, refresh, logout }
+const changePassword = asyncHandler(async (req, res) => {
+  const loggedInUser = req.user
+  const { oldPassword, newPassword } = req.body
+
+  const user = await User.findById(loggedInUser._id)
+  const comparePassword = await user.comparePassword(oldPassword)
+  if (!comparePassword) {
+    return res.status(401).json({
+      success: false,
+      message: "Old password is incorrect!",
+    })
+  }
+
+  // User model hashes password in pre-save
+  user.password = newPassword
+  await user.save()
+
+  res.status(200).json({
+    success: true,
+    message: "Password changed successfully!",
+  })
+})
+
+export { register, login, refresh, logout, changePassword }

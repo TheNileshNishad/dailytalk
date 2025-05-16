@@ -30,4 +30,9 @@ const loginSchema = z.object({
   password: passwordSchema,
 })
 
-export { registerSchema, loginSchema }
+const changePasswordSchema = z.object({
+  oldPassword: passwordSchema,
+  newPassword: passwordSchema,
+})
+
+export { registerSchema, loginSchema, changePasswordSchema }
