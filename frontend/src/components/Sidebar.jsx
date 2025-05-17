@@ -1,6 +1,9 @@
 import { Link } from "react-router-dom"
+import useAuthStore from "../store/authStore"
 
 const Sidebar = () => {
+  const user = useAuthStore((state) => state?.user?.name)
+
   return (
     <aside className="fixed w-64 h-screen transition-transform -translate-x-full sm:translate-x-0">
       <div className="h-full px-3 py-4 overflow-y-auto bg-base-300">
@@ -57,24 +60,26 @@ const Sidebar = () => {
           </li>
         </ul>
 
-        <ul className="pt-4 mt-4 space-y-2 font-medium border-t-2 border-dashed border-gray-300 dark:border-gray-500">
-          <li>
-            <Link
-              to="/login"
-              className="flex items-center p-2 rounded-lg hover:bg-base-100 dark:hover:bg-gray-700"
-            >
-              <span className="flex-1 ms-3 whitespace-nowrap">Login</span>
-            </Link>
-          </li>
-          <li>
-            <Link
-              to="/register"
-              className="flex items-center p-2 rounded-lg hover:bg-base-100 dark:hover:bg-gray-700"
-            >
-              <span className="flex-1 ms-3 whitespace-nowrap">Register</span>
-            </Link>
-          </li>
-        </ul>
+        {!user && (
+          <ul className="pt-4 mt-4 space-y-2 font-medium border-t-2 border-dashed border-gray-300 dark:border-gray-500">
+            <li>
+              <Link
+                to="/login"
+                className="flex items-center p-2 rounded-lg hover:bg-base-100 dark:hover:bg-gray-700"
+              >
+                <span className="flex-1 ms-3 whitespace-nowrap">Login</span>
+              </Link>
+            </li>
+            <li>
+              <Link
+                to="/register"
+                className="flex items-center p-2 rounded-lg hover:bg-base-100 dark:hover:bg-gray-700"
+              >
+                <span className="flex-1 ms-3 whitespace-nowrap">Register</span>
+              </Link>
+            </li>
+          </ul>
+        )}
       </div>
     </aside>
   )
