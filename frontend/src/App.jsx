@@ -8,6 +8,10 @@ import Login from "./pages/Login"
 import Register from "./pages/Register"
 import PrivateRoute from "./components/PrivateRoute"
 import NotLogged from "./pages/NotLogged"
+import Profile from "./pages/Profile"
+import ChangePassword from "./pages/ChangePassword"
+import AddFriends from "./pages/AddFriends"
+import Requests from "./pages/Requests"
 
 const queryClient = new QueryClient()
 
@@ -23,6 +27,10 @@ const App = () => {
 
             <Route element={<PrivateRoute />}>
               <Route index element={<Chat />} />
+              <Route path="profile" element={<Profile />} />
+              <Route path="change-password" element={<ChangePassword />} />
+              <Route path="add-friends" element={<AddFriends />} />
+              <Route path="requests" element={<Requests />} />
             </Route>
           </Route>
         </Routes>

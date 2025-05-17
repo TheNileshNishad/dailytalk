@@ -13,13 +13,55 @@ const Sidebar = () => {
               <span className="flex-1 ms-3 whitespace-nowrap">Chat</span>
             </Link>
           </li>
+          <li>
+            <Link
+              to="/add-friends"
+              className="flex items-center p-2 rounded-lg hover:bg-base-100 dark:hover:bg-gray-700"
+            >
+              <span className="flex-1 ms-3 whitespace-nowrap">Add Friends</span>
+            </Link>
+          </li>
+          <li>
+            <Link
+              to="/requests"
+              className="flex items-center p-2 rounded-lg hover:bg-base-100 dark:hover:bg-gray-700"
+            >
+              <span className="flex-1 ms-3 whitespace-nowrap">
+                Pending Requests
+              </span>
+            </Link>
+          </li>
+        </ul>
+
+        <ul className="pt-4 mt-4 space-y-2 font-medium border-t-2 border-dashed border-gray-300 dark:border-gray-500">
+          <li>
+            <Link
+              to="/profile"
+              className="flex items-center p-2 rounded-lg hover:bg-base-100 dark:hover:bg-gray-700"
+            >
+              <span className="flex-1 ms-3 whitespace-nowrap">Profile</span>
+            </Link>
+          </li>
+          <li>
+            <Link
+              to="/change-password"
+              className="flex items-center p-2 rounded-lg hover:bg-base-100 dark:hover:bg-gray-700"
+            >
+              <span className="flex-1 ms-3 whitespace-nowrap">
+                Change Password
+              </span>
+            </Link>
+          </li>
+          <li className="flex items-center p-2 rounded-lg hover:bg-base-100 dark:hover:bg-gray-700">
+            <span className="flex-1 ms-3 whitespace-nowrap">Logout</span>
+          </li>
         </ul>
 
         <ul className="pt-4 mt-4 space-y-2 font-medium border-t-2 border-dashed border-gray-300 dark:border-gray-500">
           <li>
             <Link
               to="/login"
-              className="flex items-center p-2 rounded-lg hover:bg-base-100 dark:hover:bg-gray-700 "
+              className="flex items-center p-2 rounded-lg hover:bg-base-100 dark:hover:bg-gray-700"
             >
               <span className="flex-1 ms-3 whitespace-nowrap">Login</span>
             </Link>
@@ -27,7 +69,7 @@ const Sidebar = () => {
           <li>
             <Link
               to="/register"
-              className="flex items-center p-2 rounded-lg hover:bg-base-100 dark:hover:bg-gray-700 "
+              className="flex items-center p-2 rounded-lg hover:bg-base-100 dark:hover:bg-gray-700"
             >
               <span className="flex-1 ms-3 whitespace-nowrap">Register</span>
             </Link>
