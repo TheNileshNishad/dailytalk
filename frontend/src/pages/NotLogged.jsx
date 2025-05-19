@@ -1,7 +1,16 @@
 import { useNavigate } from "react-router-dom"
+import useAuthStore from "../store/authStore"
+import { useEffect } from "react"
 
 const NotLogged = () => {
   const navigate = useNavigate()
+  const isAuthenticated = useAuthStore(
+    (state) => !!state.user && !!state.accessToken
+  )
+
+  useEffect(() => {
+    if (isAuthenticated) navigate("/", { replace: true })
+  }, [isAuthenticated, navigate])
 
   return (
     <div className="hero bg-base-200 min-h-[calc(100dvh-35px)]">
