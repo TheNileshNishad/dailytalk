@@ -20,11 +20,14 @@ const updateUserSchema = z.object({
     .max(250, { message: "Bio must be at most 250 characters long!" })
     .optional(),
 
-  gender: z
-    .enum(["male", "female", "prefer not to say"], {
-      message: "Gender must be 'male', 'female' or 'prefer not to say'",
-    })
-    .optional(),
+  gender: z.preprocess(
+    (val) => (val === "" ? undefined : val),
+    z
+      .enum(["male", "female", "prefer not to say"], {
+        message: "Gender must be 'male', 'female' or 'prefer not to say'",
+      })
+      .optional()
+  ),
 })
 
 export default updateUserSchema

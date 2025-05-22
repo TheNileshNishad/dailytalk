@@ -70,10 +70,7 @@ const Profile = () => {
                 </div>
 
                 <div>
-                  <label htmlFor="gender">
-                    Gender
-                    <span className="text-red-500 dark:text-red-400"> *</span>
-                  </label>
+                  <label htmlFor="gender">Gender</label>
                   <select
                     id="gender"
                     className="select rounded-lg my-3"
