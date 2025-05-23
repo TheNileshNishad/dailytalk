@@ -1,9 +1,10 @@
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import updateUserSchema from "../validators/userValidator"
-import { useQuery } from "@tanstack/react-query"
+import { useMutation, useQuery } from "@tanstack/react-query"
 import axiosInstance from "../api/axios"
 import { useEffect } from "react"
+import useAuthStore from "../store/authStore"
 
 const Profile = () => {
   const {
@@ -16,21 +17,33 @@ const Profile = () => {
   })
 
   // fetching the user profile
-  const { data, isPending } = useQuery({
+  const { data: user, isPending } = useQuery({
     queryKey: ["user"],
     queryFn: () => axiosInstance.get("/api/users/me"),
+    select: (res) => res.data.user,
   })
 
   // after fetching profile, populate the fields
   useEffect(() => {
-    if (data?.data) {
-      const { name, userName, gender, bio } = data.data.user
+    if (user) {
+      const { name, userName, gender, bio } = user
       reset({ name, userName, gender, bio })
     }
-  }, [data, reset])
+  }, [user, reset])
+
+  // update the profile
+  const setAuthData = useAuthStore((state) => state.setAuthData)
+
+  const updateProfile = useMutation({
+    mutationFn: (data) => axiosInstance.put("/api/users/me", data),
+    onSuccess: (response) => {
+      setAuthData(response.data.user, useAuthStore.getState().accessToken)
+      alert(response.data.message)
+    },
+  })
 
   const onSubmit = (data) => {
-    console.log(data)
+    updateProfile.mutate(data)
   }
 
   return (
@@ -127,12 +140,18 @@ const Profile = () => {
                 <button
                   type="submit"
                   className="btn btn-primary w-full rounded-lg my-3"
-                  disabled={isPending}
+                  disabled={isPending || updateProfile.isPending}
                 >
-                  Update Profile
+                  {updateProfile.isPending ? "Updating..." : "Update Profile"}
                 </button>
               </div>
             </form>
+
+            {updateProfile.isError && (
+              <p className="text-red-500 pb-3 dark:text-red-400 text-center text-sm">
+                {updateProfile?.error?.response?.data?.message}
+              </p>
+            )}
           </div>
         </div>
       </div>

@@ -23,7 +23,7 @@ const updateMyProfile = asyncHandler(async (req, res) => {
 
   const alreadyTaken = await User.findOne({ userName })
   if (alreadyTaken && userName !== loggedInUser.userName) {
-    fs.unlinkSync(avatar.path)
+    if (avatar?.path) fs.unlinkSync(avatar.path)
     return res.status(409).json({
       success: false,
       message: "Username is already taken. Please choose another one!",
