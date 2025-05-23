@@ -1,15 +1,33 @@
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import updateUserSchema from "../validators/userValidator"
+import { useQuery } from "@tanstack/react-query"
+import axiosInstance from "../api/axios"
+import { useEffect } from "react"
 
 const Profile = () => {
   const {
     handleSubmit,
     register,
     formState: { errors },
+    reset,
   } = useForm({
     resolver: zodResolver(updateUserSchema),
   })
+
+  // fetching the user profile
+  const { data, isPending } = useQuery({
+    queryKey: ["user"],
+    queryFn: () => axiosInstance.get("/api/users/me"),
+  })
+
+  // after fetching profile, populate the fields
+  useEffect(() => {
+    if (data?.data) {
+      const { name, userName, gender, bio } = data.data.user
+      reset({ name, userName, gender, bio })
+    }
+  }, [data, reset])
 
   const onSubmit = (data) => {
     console.log(data)
@@ -109,6 +127,7 @@ const Profile = () => {
                 <button
                   type="submit"
                   className="btn btn-primary w-full rounded-lg my-3"
+                  disabled={isPending}
                 >
                   Update Profile
                 </button>
