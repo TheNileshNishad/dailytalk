@@ -20,8 +20,7 @@ export const avatarUpload = multer({
   storage,
   limits: { fileSize: 5 * 1024 * 1024 },
   fileFilter: (req, file, cb) => {
-    const allowedMimes = ["image/jpeg", "image/png"]
-    if (allowedMimes.includes(file.mimetype)) cb(null, true)
-    else cb(new Error("Only jpeg and png files allowed!"))
+    if (file.mimetype.startsWith("image/")) cb(null, true)
+    else cb(new Error("Only image files are allowed!"))
   },
 })

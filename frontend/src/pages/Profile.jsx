@@ -3,7 +3,7 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import updateUserSchema from "../validators/userValidator"
 import { useMutation, useQuery } from "@tanstack/react-query"
 import axiosInstance from "../api/axios"
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
 import useAuthStore from "../store/authStore"
 
 const Profile = () => {
@@ -16,20 +16,38 @@ const Profile = () => {
     resolver: zodResolver(updateUserSchema),
   })
 
+  const [avatarPreview, setAvatarPreview] = useState(null)
+  const [selectedFile, setSelectedFile] = useState(null)
+
   // fetching the user profile
   const { data: user, isPending } = useQuery({
     queryKey: ["user"],
     queryFn: () => axiosInstance.get("/api/users/me"),
     select: (res) => res.data.user,
+    refetchOnWindowFocus: false,
   })
 
   // after fetching profile, populate the fields
   useEffect(() => {
     if (user) {
-      const { name, userName, gender, bio } = user
+      const { name, userName, gender, bio, avatar } = user
       reset({ name, userName, gender, bio })
+
+      if (avatar?.secure_url) {
+        setAvatarPreview(avatar.secure_url)
+      }
+      return () => setAvatarPreview(null)
     }
   }, [user, reset])
+
+  // temporary preview URL for a selected file
+  useEffect(() => {
+    if (!selectedFile) return
+    const objectUrl = URL.createObjectURL(selectedFile)
+    setAvatarPreview(objectUrl)
+
+    return () => URL.revokeObjectURL(objectUrl)
+  }, [selectedFile])
 
   // update the profile
   const setAuthData = useAuthStore((state) => state.setAuthData)
@@ -43,7 +61,15 @@ const Profile = () => {
   })
 
   const onSubmit = (data) => {
-    updateProfile.mutate(data)
+    const formData = new FormData()
+    formData.append("name", data.name)
+    formData.append("userName", data.userName)
+    formData.append("gender", data.gender)
+    formData.append("bio", data.bio)
+
+    if (selectedFile) formData.append("avatar", selectedFile)
+
+    updateProfile.mutate(formData)
   }
 
   return (
@@ -51,6 +77,9 @@ const Profile = () => {
       <div className="my-10">
         <p className="text-lg font-semibold text-center">
           Show the world who you are ✨
+        </p>
+        <p className="text-lg font-semibold text-center">
+          Add a photo and a few details let your profile shine!
         </p>
       </div>
       <div className="flex justify-center px-7 my-10">
@@ -62,7 +91,40 @@ const Profile = () => {
 
             <form onSubmit={handleSubmit(onSubmit)}>
               <div className="text-sm">
-                <div className="mt-3">
+                {avatarPreview ? (
+                  <div className="mb-4">
+                    <img
+                      src={avatarPreview}
+                      alt="Avatar Preview"
+                      className="w-24 h-24 rounded-full object-cover mx-auto"
+                    />
+                  </div>
+                ) : (
+                  <div className="mb-4 w-24 h-24 rounded-full bg-base-300 flex items-center justify-center mx-auto">
+                    <span className="text-xl">
+                      {user ? user.name.charAt(0).toUpperCase() : ""}
+                    </span>
+                  </div>
+                )}
+
+                <div className="flex justify-center items-center">
+                  <label className="cursor-pointer text-red-500 dark:text-red-400 hover:underline">
+                    Upload your avatar (Image / GIF)
+                    <input
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0]
+                        if (file) {
+                          setSelectedFile(file)
+                        }
+                      }}
+                    />
+                  </label>
+                </div>
+
+                <div className="mt-4">
                   <label htmlFor="name">
                     Name
                     <span className="text-red-500 dark:text-red-400"> *</span>
