@@ -1,11 +1,12 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import axiosInstance from "../api/axios"
-import { useState } from "react"
+import { useState, useCallback, useRef } from "react"
 
 const AddFriends = () => {
   const [activeUserId, setActiveUserId] = useState(null)
   const queryClient = useQueryClient()
   const [search, setSearch] = useState("")
+  const inputRef = useRef(null)
 
   // get all non-friend users
   const { data: users, isPending } = useQuery({
@@ -23,8 +24,17 @@ const AddFriends = () => {
       alert(response.data.message)
       setActiveUserId(null)
       queryClient.invalidateQueries({ queryKey: ["users"] })
+      // restore focus to input after successful request
+      if (inputRef.current) {
+        inputRef.current.focus()
+      }
     },
   })
+
+  // memoize the input change handler to prevent unnecessary re-renders
+  const handleSearchChange = useCallback((e) => {
+    setSearch(e.target.value)
+  }, [])
 
   if (isPending) return <p>Loading users...</p>
 
@@ -34,11 +44,13 @@ const AddFriends = () => {
         <p className="text-lg font-semibold text-center">Add New Friends</p>
         <div className="text-center my-4">
           <input
+            ref={inputRef}
             type="text"
             placeholder="Search users..."
             value={search}
-            onChange={(e) => setSearch(e.target.value)}
+            onChange={handleSearchChange}
             className="input w-full max-w-md"
+            autoFocus
           />
         </div>
       </div>
