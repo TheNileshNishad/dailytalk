@@ -1,17 +1,27 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import axiosInstance from "../api/axios"
-import { useState, useCallback, useRef } from "react"
+import { useState, useCallback, useRef, useEffect } from "react"
 
 const AddFriends = () => {
   const [activeUserId, setActiveUserId] = useState(null)
   const queryClient = useQueryClient()
   const [search, setSearch] = useState("")
   const inputRef = useRef(null)
+  const [debouncedSearch, setDebouncedSearch] = useState(search)
+
+  // debounce the search input to reduce api calls while typing
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedSearch(search)
+    }, 500)
+    return () => clearTimeout(handler)
+  }, [search])
 
   // get all non-friend users
   const { data: users, isPending } = useQuery({
-    queryKey: ["users", search],
-    queryFn: () => axiosInstance.get(`/api/users/search?search=${search}`),
+    queryKey: ["users", debouncedSearch],
+    queryFn: () =>
+      axiosInstance.get(`/api/users/search?search=${debouncedSearch}`),
     select: (res) => res.data.users,
   })
 
@@ -54,6 +64,8 @@ const AddFriends = () => {
           />
         </div>
       </div>
+
+      {users.length === 0 && <p>No user found</p>}
 
       <div className="grid grid-cols-1 xl:grid-cols-2 2xl:grid-cols-3 gap-4 justify-items-center">
         {users.map((user) => (
