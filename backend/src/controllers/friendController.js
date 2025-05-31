@@ -124,14 +124,12 @@ const getIncomingRequests = asyncHandler(async (req, res) => {
     status: "pending",
   }).populate("sender", "-password -refreshToken")
 
-  if (incomingRequests.length === 0)
-    return res
-      .status(200)
-      .json({ success: true, message: "No pending friend requests found!" })
-
   res.status(200).json({
     success: true,
-    message: "Pending friend requests fetched successfully!",
+    message:
+      incomingRequests.length === 0
+        ? "No pending friend requests found!"
+        : "Pending friend requests fetched successfully!",
     incomingRequests,
   })
 })
@@ -139,22 +137,18 @@ const getIncomingRequests = asyncHandler(async (req, res) => {
 const getOutgoingRequests = asyncHandler(async (req, res) => {
   const loggedInUserId = req.user._id
 
-  const sentRequests = await Friend.find({
+  const outgoingRequests = await Friend.find({
     sender: loggedInUserId,
     status: "pending",
   }).populate("receiver", "-password -refreshToken")
 
-  if (sentRequests.length === 0)
-    return res.status(200).json({
-      success: true,
-      message: "No outgoing friend request found!",
-      sentRequests: [],
-    })
-
   res.status(200).json({
     success: true,
-    message: "Outgoing friend requests fetched successfully!",
-    sentRequests,
+    message:
+      outgoingRequests.length === 0
+        ? "No outgoing friend request found!"
+        : "Outgoing friend requests fetched successfully!",
+    outgoingRequests,
   })
 })
 
