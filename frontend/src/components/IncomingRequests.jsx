@@ -1,12 +1,33 @@
-import { useQuery } from "@tanstack/react-query"
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import axiosInstance from "../api/axios"
+import { useState } from "react"
 
 const IncomingRequests = () => {
+  const [activeId, setActiveId] = useState(null)
+  const [activeAction, setActiveAction] = useState(null)
+  const queryClient = useQueryClient()
+
   // get all incoming friend requests
   const { data: incomingRequests, isPending } = useQuery({
     queryKey: ["incomingRequests"],
     queryFn: () => axiosInstance.get("/api/friends/requests/incoming"),
     select: (res) => res.data.incomingRequests,
+  })
+
+  // response requests (accept or reject)
+  const responseRequests = useMutation({
+    mutationFn: ({ requestId, status }) =>
+      axiosInstance.patch(`/api/friends/requests/${requestId}/${status}`),
+    onMutate: ({ requestId, status }) => {
+      setActiveId(requestId)
+      setActiveAction(status)
+    },
+    onSuccess: (response) => {
+      alert(response.data.message)
+      setActiveId(null)
+      setActiveAction(null)
+      queryClient.invalidateQueries({ queryKey: ["incomingRequests"] })
+    },
   })
 
   if (isPending) return <p>Loading incoming requests</p>
@@ -60,6 +81,38 @@ const IncomingRequests = () => {
                     ` ⚥${incomingRequest.sender.gender}`}
                 </p>
                 <p className="mt-2">{incomingRequest.sender?.bio}</p>
+                <div className="card-actions mt-4">
+                  <button
+                    onClick={() =>
+                      responseRequests.mutate({
+                        requestId: incomingRequest._id,
+                        status: "rejected",
+                      })
+                    }
+                    className="btn btn-error"
+                    disabled={activeId === incomingRequest._id}
+                  >
+                    {activeId === incomingRequest._id &&
+                    activeAction === "rejected"
+                      ? "Rejecting..."
+                      : "Reject"}
+                  </button>
+                  <button
+                    onClick={() =>
+                      responseRequests.mutate({
+                        requestId: incomingRequest._id,
+                        status: "accepted",
+                      })
+                    }
+                    className="btn btn-success"
+                    disabled={activeId === incomingRequest._id}
+                  >
+                    {activeId === incomingRequest._id &&
+                    activeAction === "accepted"
+                      ? "Accepting..."
+                      : "Accept"}
+                  </button>
+                </div>
               </div>
             </div>
           ))}
