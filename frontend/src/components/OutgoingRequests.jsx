@@ -1,12 +1,28 @@
-import { useQuery } from "@tanstack/react-query"
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import axiosInstance from "../api/axios"
+import { useState } from "react"
 
 const OutgoingRequests = () => {
+  const [activeId, setActiveId] = useState(null)
+  const queryClient = useQueryClient()
+
   // get all outgoing friend requests
   const { data: outgoingRequests, isPending } = useQuery({
     queryKey: ["outgoingRequests"],
     queryFn: () => axiosInstance.get("/api/friends/requests/outgoing"),
     select: (res) => res.data.outgoingRequests,
+  })
+
+  // cancel the sent request
+  const cancelRequests = useMutation({
+    mutationFn: (requestId) =>
+      axiosInstance.delete(`/api/friends/requests/${requestId}`),
+    onMutate: (requestId) => setActiveId(requestId),
+    onSuccess: (response) => {
+      alert(response.data.message)
+      setActiveId(null)
+      queryClient.invalidateQueries({ queryKey: ["outgoingRequests"] })
+    },
   })
 
   if (isPending) return <p>Loading outgoing requests</p>
@@ -60,6 +76,17 @@ const OutgoingRequests = () => {
                     ` ⚥${outgoingRequest.receiver.gender}`}
                 </p>
                 <p className="mt-2">{outgoingRequest.receiver?.bio}</p>
+                <div className="card-actions mt-4">
+                  <button
+                    onClick={() => cancelRequests.mutate(outgoingRequest._id)}
+                    className="btn btn-error"
+                    disabled={activeId === outgoingRequest._id}
+                  >
+                    {activeId === outgoingRequest._id
+                      ? "Cancelling..."
+                      : "Cancel Request"}
+                  </button>
+                </div>
               </div>
             </div>
           ))}
